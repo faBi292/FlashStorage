@@ -93,10 +93,14 @@ void FlashClass::write(const volatile void *flash_ptr, const void *data, uint32_
     while (NVMCTRL->INTFLAG.bit.READY == 0) { }
 #endif
 
-    // Fill page buffer
+   // Fill page buffer
     uint32_t i;
     for (i=0; i<(PAGE_SIZE/4) && size; i++) {
-      *dst_addr = read_unaligned_uint32(src_addr);
+      uint32_t current_value = *dst_addr; // When Buffer already contains Value do not overwrite
+      uint32_t new_value = read_unaligned_uint32(src_addr);
+      if (current_value != new_value) {
+        *dst_addr = new_value;
+      }
       src_addr += 4;
       dst_addr++;
       size--;
